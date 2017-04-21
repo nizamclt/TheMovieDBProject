@@ -10,8 +10,14 @@
         android:id="@+id/recyclerview_movie"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:clipToPadding="false"
-        />
+        android:clipToPadding="false"/>
+
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        android:visibility="invisible"
+        android:layout_gravity="center"
+        android:layout_width="100dp"
+        android:layout_height="100dp"/>
 
     <RelativeLayout
         android:id="@+id/ErrorLayout"

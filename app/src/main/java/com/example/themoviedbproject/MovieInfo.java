@@ -10,12 +10,6 @@ import android.os.Parcelable;
 
 public class MovieInfo implements Parcelable {
 
-    public enum MovieSortCondition{
-
-        MOVIE_SORT_CONDITION_POPULARITY ,
-        MOVIE_SORT_CONDITION_TOPRATING
-    }
-
     public String movieID;
     public String movieTitle;
     public String movieVoteAverage;
