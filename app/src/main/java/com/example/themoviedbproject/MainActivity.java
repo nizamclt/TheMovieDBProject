@@ -94,29 +94,29 @@ public class MainActivity extends AppCompatActivity {
         }
     }//onCreate
 
-/*It is found that setting android:launchMode="singleTop" can achieve what onSaveInstanceState() and onRestoreInstanceState() can achieve.
-Also, importantly it is noticed that when we go back to the main activity from the MovieDetailsActivity by using the back button (i.e. the <- button) on top of
-the application, the onRestoreInstanceState() is not getting called.
-
+/*
+It is noticed that when we go back to the main activity from the MovieDetailsActivity by using the back button (i.e. the <- button) on top of
+the application, the onRestoreInstanceState() is not getting called. To mitigate this problem android:launchMode="singleTop" is set in the manifest.
 */
-//    @Override
-//    protected void onSaveInstanceState(Bundle bundle){
-//
-//        super.onSaveInstanceState(bundle);
-//        bundle.putParcelable(LAYOUT_BUNDLE_NAME, mRecyclerView.getLayoutManager().onSaveInstanceState());
-//    }
-//
-//    @Override
-//    protected  void onRestoreInstanceState(Bundle bundle){
-//
-//        super.onRestoreInstanceState(bundle);
-//
-//        if(bundle != null)
-//        {
-//            Parcelable savedRecyclerLayoutState = bundle.getParcelable(LAYOUT_BUNDLE_NAME);
-//            mRecyclerView.getLayoutManager().onRestoreInstanceState(savedRecyclerLayoutState);
-//        }
-//    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle bundle){
+
+        super.onSaveInstanceState(bundle);
+        bundle.putParcelable(LAYOUT_BUNDLE_NAME, mRecyclerView.getLayoutManager().onSaveInstanceState());
+    }
+
+    @Override
+    protected  void onRestoreInstanceState(Bundle bundle){
+
+        super.onRestoreInstanceState(bundle);
+
+        if(bundle != null)
+        {
+            Parcelable savedRecyclerLayoutState = bundle.getParcelable(LAYOUT_BUNDLE_NAME);
+            mRecyclerView.getLayoutManager().onRestoreInstanceState(savedRecyclerLayoutState);
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu){
