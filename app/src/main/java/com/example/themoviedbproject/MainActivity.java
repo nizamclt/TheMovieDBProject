@@ -5,10 +5,12 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Parcelable;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -51,7 +53,6 @@ public class MainActivity extends AppCompatActivity {
     private RelativeLayout mLayoutError;
     private RecyclerView mRecyclerView;
     private MainActivity mMainActivity;
-    private Exception mMovieException;
     private Button mButtonRefresh;
     MovieAdapter mMovieAdapter;
     ProgressBar mProgressBar;
@@ -74,11 +75,11 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onClick(View v) {
-                new LoadMovieBkAsyncTask().execute();
+                new LoadMovieBkAsyncTask(new FetchMovieEventsListener()).execute();
             }
         });
 
-        GridLayoutManager layoutManager = new GridLayoutManager(this, GRID_LAYOUT_COLUMNS);
+        StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(GRID_LAYOUT_COLUMNS, StaggeredGridLayoutManager.VERTICAL);
         mRecyclerView.setLayoutManager(layoutManager);
         mRecyclerView.setHasFixedSize(true);
 
@@ -87,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
         mRecyclerView.setAdapter(mMovieAdapter);
 
         if(CheckOnline()){
-            new LoadMovieBkAsyncTask().execute();
+            new LoadMovieBkAsyncTask(new FetchMovieEventsListener()).execute();
         }else{
             mLayoutError.setVisibility(View.VISIBLE);
             mRecyclerView.setVisibility(View.INVISIBLE);
@@ -142,7 +143,7 @@ the application, the onRestoreInstanceState() is not getting called. To mitigate
         if(mLayoutError.getVisibility() == View.VISIBLE){
             return true;
         }
-        new LoadMovieBkAsyncTask().execute();
+        new LoadMovieBkAsyncTask(new FetchMovieEventsListener()).execute();
         return true;
     }
 
@@ -173,6 +174,46 @@ the application, the onRestoreInstanceState() is not getting called. To mitigate
         mRecyclerView.setVisibility(View.INVISIBLE);
     }
 
+    private class FetchMovieEventsListener implements MovieEventsListener<ArrayList<MovieInfo>>{
+
+        @Override
+        public void onPreExecute()
+        {
+            mMainActivity.HideError();
+            mProgressBar.setVisibility(View.VISIBLE);
+        }
+
+        @Override
+        public void onPostExecute(ArrayList<MovieInfo> result, Exception exception)
+        {
+            mProgressBar.setVisibility(View.INVISIBLE);
+
+            if(exception != null ){
+                mMainActivity.ShowError(exception);
+                return;
+            }
+            mMovieAdapter.setMovieInfo(result);
+        }
+
+        @Override
+        public String getAPIKey()
+        {
+            return API_KAY;
+        }
+
+        @Override
+        public String getDBURL()
+        {
+            return URL_MOVIE_DB;
+        }
+
+        @Override
+        public int getSortCondition(){
+
+            return mSortSelection;
+        }
+    }
+
     private void InitActivity(){
 
         LAYOUT_BUNDLE_NAME = getResources().getString(R.string.class_bundle_main_activity);
@@ -180,139 +221,4 @@ the application, the onRestoreInstanceState() is not getting called. To mitigate
         API_KAY = getResources().getString(R.string.api_key_movie_db);
         CLASS_TAG = getClass().getSimpleName();
     }
-
-    private  class LoadMovieBkAsyncTask extends AsyncTask<Void, Void, ArrayList<MovieInfo>> {
-
-        @Override
-        protected ArrayList<MovieInfo> doInBackground(Void... prams){
-
-            ArrayList<MovieInfo> movieResult = null;
-            mMovieException = null;
-            try{
-                movieResult = LoadMovieInfo();
-
-            }catch (Exception exception){
-                exception.printStackTrace();
-                mMovieException = exception;
-            }
-            return movieResult;
-        }
-
-        @Override
-        protected  void onPreExecute(){
-
-            mMainActivity.HideError();
-            mProgressBar.setVisibility(View.VISIBLE);
-        }
-
-        @Override
-        protected void onPostExecute(ArrayList<MovieInfo> result){
-            mProgressBar.setVisibility(View.INVISIBLE);
-
-            if(mMovieException != null ){
-                mMainActivity.ShowError(mMovieException);
-                return;
-            }
-            mMovieAdapter.setMovieInfo(result);
-        }
-
-        private ArrayList<MovieInfo> LoadMovieInfo() throws Exception{
-
-            ArrayList<MovieInfo> movieResult = null;
-
-            try{
-                StringBuilder stringBuilder = new StringBuilder();
-                stringBuilder.append(URL_MOVIE_DB);
-
-                if(mSortSelection == R.id.sort_by_most_popular){
-                    stringBuilder.append(MovieSortCondition.MOVIE_SORT_CONDITION_MOST_POPULAR);
-                    mMovieAdapter.setSortCondition(MovieSortCondition.MOVIE_SORT_CONDITION_MOST_POPULAR);
-                }else{
-                    stringBuilder.append(MovieSortCondition.MOVIE_SORT_CONDITION_TOP_RATED);
-                    mMovieAdapter.setSortCondition(MovieSortCondition.MOVIE_SORT_CONDITION_TOP_RATED);
-                }
-                stringBuilder.append("?api_key=" + API_KAY);
-
-                URL url = new URL(stringBuilder.toString());
-
-                Log.d(getClass().getSimpleName(), url.toString());
-
-                HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
-
-                httpURLConnection.setReadTimeout(10000 /* milli seconds */);
-                httpURLConnection.setConnectTimeout(15000 /* milli seconds */);
-                httpURLConnection.setRequestMethod("GET");
-                httpURLConnection.addRequestProperty("Accept", "application/json");
-                httpURLConnection.setDoInput(true);
-                httpURLConnection.connect();
-
-                int responseCode = httpURLConnection.getResponseCode();
-                Log.d(CLASS_TAG, "The response code is: " + responseCode + " " + httpURLConnection.getResponseMessage());
-
-                InputStream stream = new BufferedInputStream(httpURLConnection.getInputStream());
-                movieResult = parseMovieResult(stringify(stream));
-                httpURLConnection.disconnect();
-
-
-            }catch (Exception exception){
-
-                throw exception;
-            }
-            return movieResult;
-        }//LoadMovieInfo
-
-        public String stringify(InputStream stream) throws IOException, UnsupportedEncodingException {
-            Reader reader = null;
-            reader = new InputStreamReader(stream, "UTF-8");
-            BufferedReader bufferedReader = new BufferedReader(reader);
-            return bufferedReader.readLine();
-        }
-
-        private ArrayList<MovieInfo> parseMovieResult(String result) throws JSONException {
-            String streamAsString = result;
-
-            ArrayList<MovieInfo> movieArrayList = new ArrayList<MovieInfo>();
-
-            try {
-                JSONObject jsonObject = new JSONObject(streamAsString);
-                String string;
-                JSONArray array = (JSONArray) jsonObject.get("results");
-                for (int i = 0; i < array.length(); i++) {
-
-                    JSONObject jsonMovieObject = array.getJSONObject(i);
-                    string = jsonMovieObject.getString("poster_path");
-                    if(string.isEmpty() || string.contains("null")){
-                        continue;
-                    }
-
-                    MovieInfo movieInfo = new MovieInfo();
-
-                    string = jsonMovieObject.getString("id");
-                    movieInfo.movieID = string;
-                    string = jsonMovieObject.getString("title");
-                    movieInfo.movieTitle = string;
-                    string = jsonMovieObject.getString("vote_average");//sort key
-                    movieInfo.movieVoteAverage = string;
-                    string = jsonMovieObject.getString("poster_path");
-                    movieInfo.moviePosterPath = string;
-                    string = jsonMovieObject.getString("overview");
-                    movieInfo.movieOverView = string;
-                    string = jsonMovieObject.getString("release_date");
-                    movieInfo.movieReleaseDate = string;
-                    string = jsonMovieObject.getString("popularity");//sort key
-                    movieInfo.moviePopularity = string;
-
-//                    string = jsonMovieObject.getString("backdrop_path");
-//                    string = jsonMovieObject.getString("original_title");
-//                    string = jsonMovieObject.getString("vote_count");
-
-                    movieArrayList.add(movieInfo);//Dynamically adding items to the adaptor possible?
-
-                }
-            } catch (JSONException jsonexception) {
-                throw  jsonexception;
-            }
-            return movieArrayList;
-        }//parseMovieResult
-    }//LoadMovieBkAsyncTask
 }//MainActivity
