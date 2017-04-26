@@ -115,7 +115,11 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdaptor
         public void LoadImage(String stringImagePath){
 
             mProgressBar.setVisibility(View.VISIBLE);
-            Picasso.with(itemView.getContext()).load(stringImagePath).into(mImageView);
+            Picasso.with(itemView.getContext())
+                   .load(stringImagePath)
+                   .placeholder(R.drawable.loading)
+                   .error(R.drawable.error_loading)
+                   .into(mImageView);
             mProgressBar.setVisibility(View.INVISIBLE);
         }
 

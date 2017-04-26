@@ -11,4 +11,7 @@
     <string name="url_movie_image">http://image.tmdb.org/t/p/w185</string>
     <string name="url_movie_db">http://api.themoviedb.org/3/movie/</string>
     <string name="class_bundle_main_activity">MainActivityBundle</string>
+    <string name="popular_movies">Popular Movies</string>
+    <string name="top_rated_movies">Top Rated Movies</string>
+    <string name="movie_details">Movie Details</string>
 </resources>

@@ -9,6 +9,9 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 /**
  * Created by Nisam on 4/20/2017.
  */
@@ -16,11 +19,13 @@ import com.squareup.picasso.Picasso;
 public class MovieDetailsActivity extends AppCompatActivity {
 
     private static String CLASS_TAG;
-    ImageView mImageView;
-    TextView mTextTitle;
-    TextView mTextOverView;
-    TextView mTextRating;
-    TextView mTextReleaseDate;
+
+    //ButterKnife is really a knife!
+    @BindView(R.id.imageViewDetail) ImageView mImageView;
+    @BindView(R.id.textTitle) TextView mTextTitle;
+    @BindView(R.id.textOverview) TextView mTextOverView;
+    @BindView(R.id.textRating) TextView mTextRating;
+    @BindView(R.id.textReleaseDate) TextView mTextReleaseDate;
 
     @Override
     protected void onCreate(Bundle savedInstance){
@@ -28,12 +33,8 @@ public class MovieDetailsActivity extends AppCompatActivity {
         super.onCreate(savedInstance);
         CLASS_TAG = getClass().getSimpleName();
         setContentView(R.layout.activity_movie_details);
-
-        mImageView = (ImageView) findViewById(R.id.imageViewDetail);
-        mTextTitle = (TextView) findViewById(R.id.textTitle);
-        mTextOverView = (TextView) findViewById(R.id.textOverview);
-        mTextRating = (TextView) findViewById(R.id.textRating);
-        mTextReleaseDate = (TextView) findViewById(R.id.textReleaseDate);
+        setTitle(R.string.movie_details);
+        ButterKnife.bind(this);
 
         Intent intent = getIntent();
         MovieInfo movieInfo = (MovieInfo) intent.getParcelableExtra(Intent.EXTRA_TEXT);
@@ -52,7 +53,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
 
         mTextTitle.setText(movieInfo.movieTitle);
         mTextOverView.setText(movieInfo.movieOverView);
-        mTextRating.setText(movieInfo.moviePopularity);
+        mTextRating.setText(movieInfo.movieVoteAverage);
         mTextReleaseDate.setText(movieInfo.movieReleaseDate);
     }//onCreate
 }//MovieDetailsActivity
