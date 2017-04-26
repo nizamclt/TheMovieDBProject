@@ -41,6 +41,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class MainActivity extends AppCompatActivity {
 
     private static String CLASS_TAG;
@@ -50,13 +53,14 @@ public class MainActivity extends AppCompatActivity {
     private static String URL_MOVIE_DB;
     private static String API_KAY;
 
-    private RelativeLayout mLayoutError;
-    private RecyclerView mRecyclerView;
+    @BindView(R.id.ErrorLayout) RelativeLayout mLayoutError;
+    @BindView(R.id.recyclerview_movie) RecyclerView mRecyclerView;
+    @BindView(R.id.Refresh) Button mButtonRefresh;
+    @BindView(R.id.progress_bar) ProgressBar mProgressBar;
+
     private MainActivity mMainActivity;
-    private Button mButtonRefresh;
-    MovieAdapter mMovieAdapter;
-    ProgressBar mProgressBar;
-    int mSortSelection = R.id.sort_by_most_popular;
+    private MovieAdapter mMovieAdapter;
+    private int mSortSelection = R.id.sort_by_most_popular; //Default sorting
 
 
     @Override
@@ -64,12 +68,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         mMainActivity = this;
         setContentView(R.layout.activity_main);
+        setTitle(R.string.popular_movies);
+        ButterKnife.bind(this);
         InitActivity();
-
-        mRecyclerView = (RecyclerView) findViewById(R.id.recyclerview_movie);
-        mProgressBar = (ProgressBar) findViewById(R.id.progress_bar);
-        mLayoutError = (RelativeLayout) findViewById(R.id.ErrorLayout);
-        mButtonRefresh = (Button) mLayoutError.findViewById(R.id.Refresh);
 
         mButtonRefresh.setOnClickListener( new View.OnClickListener() {
 
@@ -143,6 +144,14 @@ the application, the onRestoreInstanceState() is not getting called. To mitigate
         if(mLayoutError.getVisibility() == View.VISIBLE){
             return true;
         }
+
+        if(mSortSelection == R.id.sort_by_most_popular){
+            setTitle(R.string.popular_movies);
+        }
+        else{
+            setTitle(R.string.top_rated_movies);
+        }
+
         new LoadMovieBkAsyncTask(new FetchMovieEventsListener()).execute();
         return true;
     }
