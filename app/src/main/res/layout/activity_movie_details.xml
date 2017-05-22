@@ -7,71 +7,116 @@
 
     <TableLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:stretchColumns="1">
-
-        <ImageView
-            android:id="@+id/imageViewDetail"
-            android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:layout_weight="0.44"
-            android:elevation="5dp"
-            android:background="@color/colorAccent"
-            android:padding="1dp"
-            android:scaleType="fitXY"
-            app:srcCompat="@mipmap/ic_launcher" />
 
         <TextView
             android:id="@+id/textTitle"
+            android:textColor="@color/colorWhite"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="2dp"
-            android:layout_marginTop="2dp"
-            android:layout_weight="0.15"
-            android:text="title"
-            android:textSize="30dp" />
+            android:text="Title"
+            android:gravity="center"
+            android:textSize="40dp"
+            android:background="@color/colorTitleGreen"
+            android:layout_weight="2"/>
+
+        <RelativeLayout
+            android:layout_height="0dp"
+            android:layout_width="match_parent"
+            android:layout_marginTop="0dp"
+            android:layout_weight="6">
+
+            <ImageView
+                android:id="@+id/imageViewDetail"
+                android:layout_width="200dp"
+                android:layout_height="300dp"
+                android:elevation="5dp"
+                android:padding="1dp"
+                android:scaleType="fitXY"
+                app:srcCompat="@mipmap/ic_launcher" />
+
+                <TextView
+                    android:id="@+id/textReleaseDate"
+                    android:layout_toRightOf="@id/imageViewDetail"
+                    android:paddingTop="20dp"
+                    android:layout_marginLeft="30dp"
+                    android:layout_marginStart="30dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="30dp"
+                    android:text="YEAR"
+                    />
+
+                <TextView
+                    android:id="@+id/textMinutes"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="25dp"
+                    android:text="MIN"
+                    android:textStyle="italic"
+                    android:layout_below="@+id/textReleaseDate"
+                    android:layout_toRightOf="@+id/imageViewDetail"
+                    android:layout_marginLeft="30dp"
+                    android:layout_marginStart="30dp"
+                    android:layout_marginTop="5dp" />
+
+                <TextView
+                    android:id="@+id/textRating"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="20dp"
+                    android:text="Rating"
+                    android:layout_below="@+id/textMinutes"
+                    android:layout_toRightOf="@+id/imageViewDetail"
+                    android:layout_marginLeft="30dp"
+                    android:layout_marginStart="30dp"
+                    android:layout_marginTop="5dp" />
+
+                <ToggleButton
+                    android:id="@+id/button_favourite"
+                    android:background="@drawable/favourite"
+                    android:clickable="true"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_marginTop="5dp"
+                    android:textOn=""
+                    android:textOff=""
+                    android:layout_below="@+id/textRating"
+                    android:layout_alignLeft="@+id/textRating"
+                    android:layout_alignStart="@+id/textRating" />
+        </RelativeLayout>
+
         <TextView
             android:id="@+id/textOverview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="2dp"
-            android:text="overview" />
+            android:layout_marginTop="2dp"
+            android:text="Overview"
+            android:layout_weight="1"/>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginLeft="4dp"
+            android:layout_marginRight="4dp"
+            android:background="@android:color/black"
+            android:layout_weight="0.005"/>
 
-        <RelativeLayout android:layout_marginTop="2dp">
-            <TextView
-                android:id="@+id/labelRating"
-                android:layout_marginLeft="2dp"
-                android:layout_width="50dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.06"
-                android:text="Rating:" />
+        <TextView
+            android:id="@+id/labelTrailers"
+            android:text="@string/label_trailers"
+            android:layout_marginLeft="4dp"
+            android:textSize="15dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
 
-            <TextView
-                android:id="@+id/textRating"
-                android:layout_width="94dp"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="60dp"
-                android:layout_weight="0.06"
-                android:text="rating" />
-        </RelativeLayout>
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recyclerview_trailer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clipToPadding="false"
+            android:layout_weight="0.5"/>
 
-        <RelativeLayout android:layout_marginTop="2dp">
-            <TextView
-                android:id="@+id/labelReleaseDate"
-                android:layout_width="93dp"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="2dp"
-                android:layout_weight="0.07"
-                android:text="Release Date:" />
-
-            <TextView
-                android:id="@+id/textReleaseDate"
-                android:layout_width="93dp"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="100dp"
-                android:layout_weight="0.07"
-                android:text="release date" />
-            </RelativeLayout>
-
-    </TableLayout>
+     </TableLayout>
 </ScrollView>

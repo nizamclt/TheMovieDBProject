@@ -70,6 +70,17 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdaptor
         return MOVIE_IMAGE_URL;
     }
 
+    public void addMovieInfo(MovieInfo movieInfo){
+
+        if(null == mMovieArrayList){
+            mMovieArrayList = new ArrayList<MovieInfo>();
+        }
+        mMovieArrayList.add( movieInfo);
+        Collections.sort(mMovieArrayList, new MovieComparator());
+        notifyDataSetChanged();
+    }
+
+
     public void setMovieInfo(ArrayList<MovieInfo> movieInfos ){
 
         if(null != movieInfos){
@@ -138,7 +149,6 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdaptor
 
             movieDetailIntent.putExtra(Intent.EXTRA_TEXT, movieInfo);
             view.getContext().startActivity(movieDetailIntent);
-
         }//onClick
     }//Class MovieAdaptorHolder
 }//Class MovieAdapter

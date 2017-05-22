@@ -7,6 +7,9 @@ package com.example.themoviedbproject;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class MovieInfo implements Parcelable {
 
@@ -17,13 +20,15 @@ public class MovieInfo implements Parcelable {
     public String movieOverView;
     public String movieReleaseDate;
     public String moviePopularity;
+    public List<MovieTrailer> mMovieTrailers = new ArrayList<MovieTrailer>();
+    public List<MovieReview> mMovieReviews = new ArrayList<MovieReview>();
 
 
     MovieInfo(){
 
     }
 
-    MovieInfo( Parcel src){
+    MovieInfo(Parcel src){
         movieID = src.readString();
         movieTitle = src.readString();
         movieVoteAverage = src.readString();
@@ -31,6 +36,12 @@ public class MovieInfo implements Parcelable {
         movieOverView = src.readString();
         movieReleaseDate = src.readString();
         moviePopularity = src.readString();
+
+        if(null == mMovieTrailers){
+            mMovieTrailers = new ArrayList<MovieTrailer>();
+        }
+        src.readTypedList(mMovieTrailers, MovieTrailer.CREATOR);
+
     }
 
     @Override
@@ -47,6 +58,8 @@ public class MovieInfo implements Parcelable {
         dest.writeString(movieOverView);
         dest.writeString(movieReleaseDate);
         dest.writeString(moviePopularity);
+        dest.writeTypedList(mMovieTrailers);
+
     }
 
     public static final Creator<MovieInfo> CREATOR = new Creator<MovieInfo>() {
@@ -60,4 +73,86 @@ public class MovieInfo implements Parcelable {
             return new MovieInfo(source);
         }
     };
+
+    public static class MovieTrailer implements  Parcelable{
+
+        public String mSize;
+        public String mKey;
+        public String mSite;
+        public String mType;
+
+        MovieTrailer(){}
+
+        protected MovieTrailer(Parcel in) {
+            mSize = in.readString();
+            mKey = in.readString();
+            mSite = in.readString();
+            mType = in.readString();
+        }
+
+        public static final Creator<MovieTrailer> CREATOR = new Creator<MovieTrailer>() {
+            @Override
+            public MovieTrailer createFromParcel(Parcel in) {
+                return new MovieTrailer(in);
+            }
+
+            @Override
+            public MovieTrailer[] newArray(int size) {
+                return new MovieTrailer[size];
+            }
+        };
+
+        @Override
+        public int describeContents() {
+            return 0;
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            dest.writeString(mSize);
+            dest.writeString(mKey);
+            dest.writeString(mSite);
+            dest.writeString(mType);
+        }
+    }
+
+
+    static class MovieReview implements Parcelable {
+
+        public String mAuthor;
+        public String mContent;
+        public String mUrl;
+
+        MovieReview(){}
+
+        MovieReview(Parcel src){
+            mAuthor = src.readString();
+            mContent = src.readString();
+            mUrl = src.readString();
+        }
+
+        public static final Creator<MovieReview> CREATOR = new Creator<MovieReview>() {
+            @Override
+            public MovieReview[] newArray(int size) {
+                return new MovieReview[size];
+            }
+
+            @Override
+            public MovieReview createFromParcel(Parcel source) {
+                return new MovieReview(source);
+            }
+        };
+
+        @Override
+        public int describeContents() {
+            return 0;
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            dest.writeString(mAuthor);
+            dest.writeString(mContent);
+            dest.writeString(mUrl);
+        }
+    }
 }

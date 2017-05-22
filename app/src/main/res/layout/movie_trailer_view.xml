@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_marginLeft="3dp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+        <ImageButton
+            android:id="@+id/imagePlay"
+            android:layout_marginTop="5dp"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:scaleType="fitXY"
+            android:background="@drawable/button_play"
+            android:layout_below="@+id/labelTrailers"
+            />
+
+        <TextView
+            android:id="@+id/trailerID"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_alignParentBottom="false"
+            android:layout_below="@+id/labelTrailers"
+            android:layout_toRightOf="@+id/imagePlay"
+            android:text="@string/label_trailerId"
+            android:autoLink="web"
+            android:textSize="15dp" />
+</RelativeLayout>

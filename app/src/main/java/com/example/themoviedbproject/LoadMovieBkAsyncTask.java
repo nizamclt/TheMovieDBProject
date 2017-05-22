@@ -1,10 +1,12 @@
 package com.example.themoviedbproject;
 
+import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageButton;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -25,7 +27,7 @@ import java.util.ArrayList;
  * Created by Nisam on 4/25/2017.
  */
 
-public class LoadMovieBkAsyncTask extends AsyncTask<Void, Void, ArrayList<MovieInfo>>{
+public class LoadMovieBkAsyncTask extends AsyncTask<Void, MovieInfo, ArrayList<MovieInfo>>{
 
     private static String CLASS_TAG;
     private Exception mMovieException;
@@ -57,6 +59,13 @@ public class LoadMovieBkAsyncTask extends AsyncTask<Void, Void, ArrayList<MovieI
     }
 
     @Override
+    protected void onProgressUpdate(MovieInfo... values) {
+        //super.onProgressUpdate(values);
+        mMovieEventsListener.onProgressUpdate(values[0]);
+
+    }
+
+    @Override
     public void onPreExecute() {
         mMovieEventsListener.onPreExecute();
     }
@@ -78,26 +87,9 @@ public class LoadMovieBkAsyncTask extends AsyncTask<Void, Void, ArrayList<MovieI
             }
             stringBuilder.append("?api_key=" + mMovieEventsListener.getAPIKey());
 
-            URL url = new URL(stringBuilder.toString());
+            String stringURLResult = sendMovieRequest(stringBuilder.toString());
 
-            Log.d(getClass().getSimpleName(), url.toString());
-
-            HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
-
-            httpURLConnection.setReadTimeout(10000 /* milli seconds */);
-            httpURLConnection.setConnectTimeout(15000 /* milli seconds */);
-            httpURLConnection.setRequestMethod("GET");
-            httpURLConnection.addRequestProperty("Accept", "application/json");
-            httpURLConnection.setDoInput(true);
-            httpURLConnection.connect();
-
-            int responseCode = httpURLConnection.getResponseCode();
-            Log.d(CLASS_TAG, "The response code is: " + responseCode + " " + httpURLConnection.getResponseMessage());
-
-            InputStream stream = new BufferedInputStream(httpURLConnection.getInputStream());
-            movieResult = parseMovieResult(stringify(stream));
-            httpURLConnection.disconnect();
-
+            movieResult = parseMovieResult(stringURLResult);
 
         }catch (Exception exception){
 
@@ -106,6 +98,7 @@ public class LoadMovieBkAsyncTask extends AsyncTask<Void, Void, ArrayList<MovieI
         return movieResult;
     }//LoadMovieInfo
 
+
     public String stringify(InputStream stream) throws IOException, UnsupportedEncodingException {
         Reader reader = null;
         reader = new InputStreamReader(stream, "UTF-8");
@@ -113,7 +106,7 @@ public class LoadMovieBkAsyncTask extends AsyncTask<Void, Void, ArrayList<MovieI
         return bufferedReader.readLine();
     }
 
-    private ArrayList<MovieInfo> parseMovieResult(String result) throws JSONException {
+    private ArrayList<MovieInfo> parseMovieResult(String result) throws Exception {
         String streamAsString = result;
 
         ArrayList<MovieInfo> movieArrayList = new ArrayList<MovieInfo>();
@@ -134,6 +127,11 @@ public class LoadMovieBkAsyncTask extends AsyncTask<Void, Void, ArrayList<MovieI
 
                 string = jsonMovieObject.getString("id");
                 movieInfo.movieID = string;
+
+                //Get movie Reviews and Trailers.
+                getMovieReviews(movieInfo);
+                getMovieTrailers(movieInfo);
+
                 string = jsonMovieObject.getString("title");
                 movieInfo.movieTitle = string;
                 string = jsonMovieObject.getString("vote_average");//sort key
@@ -152,6 +150,7 @@ public class LoadMovieBkAsyncTask extends AsyncTask<Void, Void, ArrayList<MovieI
 //                    string = jsonMovieObject.getString("vote_count");
 
                 movieArrayList.add(movieInfo);//Dynamically adding items to the adaptor possible?
+                publishProgress(movieInfo);
 
             }
         } catch (JSONException jsonexception) {
@@ -159,4 +158,104 @@ public class LoadMovieBkAsyncTask extends AsyncTask<Void, Void, ArrayList<MovieI
         }
         return movieArrayList;
     }//parseMovieResult
+
+    private void getMovieReviews(MovieInfo movieInfo) throws  Exception{
+
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(mMovieEventsListener.getDBURL());
+        stringBuilder.append(movieInfo.movieID + "/");
+        stringBuilder.append(mMovieEventsListener.getNodeReviews());
+
+        stringBuilder.append("?api_key=" + mMovieEventsListener.getAPIKey());
+
+        String stringURLResult = sendMovieRequest(stringBuilder.toString());
+
+        getReviewList(stringURLResult, movieInfo);
+
+    }//GetMovieReviews
+
+    private void getMovieTrailers(MovieInfo movieInfo) throws  Exception{
+
+
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(mMovieEventsListener.getDBURL());
+        stringBuilder.append(movieInfo.movieID + "/");
+        stringBuilder.append(mMovieEventsListener.getNodeVideos());
+
+        stringBuilder.append("?api_key=" + mMovieEventsListener.getAPIKey());
+
+        String stringURLResult = sendMovieRequest(stringBuilder.toString());
+        getTrailerList(stringURLResult, movieInfo);
+    }
+
+    private void getReviewList(String movieReviews, MovieInfo movieInfo) throws  Exception{
+
+        JSONObject jsonObject = new JSONObject(movieReviews);
+        String entry;
+        String reviewResult;
+        JSONArray array = (JSONArray) jsonObject.get("results");
+
+        MovieInfo.MovieReview movieReview = new MovieInfo.MovieReview();
+        for (int i = 0; i < array.length(); i++) {
+            JSONObject jsonReviewObject = array.getJSONObject(i);
+            entry = jsonReviewObject.getString("author");
+            movieReview.mAuthor = entry;
+            entry = jsonReviewObject.getString("content");
+            movieReview.mContent = entry;
+            entry = jsonReviewObject.getString("url");
+            movieReview.mUrl = entry;
+            movieInfo.mMovieReviews.add(movieReview);
+        }
+    }
+
+    private void getTrailerList(String movieTrailers, MovieInfo movieInfo) throws  Exception{
+
+        JSONObject jsonObject = new JSONObject(movieTrailers);
+        String entry;
+        String reviewResult;
+        JSONArray array = (JSONArray) jsonObject.get("results");
+
+        MovieInfo.MovieTrailer movieTrailer = new MovieInfo.MovieTrailer();
+        for (int i = 0; i < array.length(); i++) {
+            JSONObject jsonReviewObject = array.getJSONObject(i);
+            entry = jsonReviewObject.getString("name");
+            entry = jsonReviewObject.getString("size");
+            movieTrailer.mSize = entry;
+            entry = jsonReviewObject.getString("key");
+            entry = mMovieEventsListener.getNodeVideoLink() + entry;
+            movieTrailer.mKey = entry;
+            Log.d(CLASS_TAG, entry);
+            entry = jsonReviewObject.getString("type");
+            movieTrailer.mType = entry;
+            entry = jsonReviewObject.getString("site");
+            movieTrailer.mSite = entry;
+            movieInfo.mMovieTrailers.add(movieTrailer);
+        }
+    }
+
+    private String sendMovieRequest(String stringURL) throws  Exception{
+
+        String stringReturn = null;
+        URL url = new URL(stringURL.toString());
+
+        Log.d(getClass().getSimpleName(), url.toString());
+
+        HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+
+        httpURLConnection.setReadTimeout(10000 /* milli seconds */);
+        httpURLConnection.setConnectTimeout(15000 /* milli seconds */);
+        httpURLConnection.setRequestMethod("GET");
+        httpURLConnection.addRequestProperty("Accept", "application/json");
+        httpURLConnection.setDoInput(true);
+        httpURLConnection.connect();
+
+        int responseCode = httpURLConnection.getResponseCode();
+        Log.d(CLASS_TAG, "The response code is: " + responseCode + " " + httpURLConnection.getResponseMessage());
+
+        InputStream stream = new BufferedInputStream(httpURLConnection.getInputStream());
+        stringReturn = stringify(stream);
+        httpURLConnection.disconnect();
+        return  stringReturn;
+    }
+
 }//LoadMovieBkAsyncTask

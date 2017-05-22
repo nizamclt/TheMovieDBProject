@@ -50,8 +50,11 @@ public class MainActivity extends AppCompatActivity {
     private static final int GRID_LAYOUT_COLUMNS = 2;
 
     private static String LAYOUT_BUNDLE_NAME;
-    private static String URL_MOVIE_DB;
     private static String API_KAY;
+    private static String URL_MOVIE_DB;
+    private static String NODE_REVIEWS;
+    private static String NODE_VIDEOS;
+    private static String NODE_VIDEO_LINK;
 
     @BindView(R.id.ErrorLayout) RelativeLayout mLayoutError;
     @BindView(R.id.recyclerview_movie) RecyclerView mRecyclerView;
@@ -183,7 +186,7 @@ the application, the onRestoreInstanceState() is not getting called. To mitigate
         mRecyclerView.setVisibility(View.INVISIBLE);
     }
 
-    private class FetchMovieEventsListener implements MovieEventsListener<ArrayList<MovieInfo>>{
+    private class FetchMovieEventsListener implements MovieEventsListener<MovieInfo, ArrayList<MovieInfo>>{
 
         @Override
         public void onPreExecute()
@@ -201,7 +204,13 @@ the application, the onRestoreInstanceState() is not getting called. To mitigate
                 mMainActivity.ShowError(exception);
                 return;
             }
-            mMovieAdapter.setMovieInfo(result);
+           // mMovieAdapter.setMovieInfo(result);
+        }
+
+        @Override
+        public void onProgressUpdate(MovieInfo movieInfo) {
+
+            mMovieAdapter.addMovieInfo(movieInfo);
         }
 
         @Override
@@ -221,13 +230,31 @@ the application, the onRestoreInstanceState() is not getting called. To mitigate
 
             return mSortSelection;
         }
+
+        @Override
+        public String getNodeReviews() {
+            return NODE_REVIEWS;
+        }
+
+        @Override
+        public String getNodeVideos() {
+            return NODE_VIDEOS;
+        }
+
+        @Override
+        public String getNodeVideoLink() {
+            return NODE_VIDEO_LINK;
+        }
     }
 
     private void InitActivity(){
 
         LAYOUT_BUNDLE_NAME = getResources().getString(R.string.class_bundle_main_activity);
-        URL_MOVIE_DB = getResources().getString(R.string.url_movie_db);
         API_KAY = getResources().getString(R.string.api_key_movie_db);
+        URL_MOVIE_DB = getResources().getString(R.string.url_movie_db);
+        NODE_REVIEWS = getResources().getString(R.string.url_node_reviews);
+        NODE_VIDEOS = getResources().getString(R.string.url_node_videos);
+        NODE_VIDEO_LINK = getResources().getString(R.string.youtube_link);
         CLASS_TAG = getClass().getSimpleName();
     }
 }//MainActivity

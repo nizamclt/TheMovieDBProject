@@ -3,6 +3,8 @@ package com.example.themoviedbproject;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -20,12 +22,16 @@ public class MovieDetailsActivity extends AppCompatActivity {
 
     private static String CLASS_TAG;
 
+    private MovieAdapterTrailer mMovieAdapterTrailer;
+    private static final int GRID_LAYOUT_COLUMNS = 1;
+
     //ButterKnife is really a knife!
     @BindView(R.id.imageViewDetail) ImageView mImageView;
     @BindView(R.id.textTitle) TextView mTextTitle;
     @BindView(R.id.textOverview) TextView mTextOverView;
     @BindView(R.id.textRating) TextView mTextRating;
     @BindView(R.id.textReleaseDate) TextView mTextReleaseDate;
+    @BindView(R.id.recyclerview_trailer) RecyclerView mRecyclerViewTrailer;
 
     @Override
     protected void onCreate(Bundle savedInstance){
@@ -55,5 +61,14 @@ public class MovieDetailsActivity extends AppCompatActivity {
         mTextOverView.setText(movieInfo.movieOverView);
         mTextRating.setText(movieInfo.movieVoteAverage);
         mTextReleaseDate.setText(movieInfo.movieReleaseDate);
+
+        StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(GRID_LAYOUT_COLUMNS, StaggeredGridLayoutManager.VERTICAL);
+        mRecyclerViewTrailer.setLayoutManager(layoutManager);
+        mRecyclerViewTrailer.setHasFixedSize(true);
+
+        mMovieAdapterTrailer = new MovieAdapterTrailer();
+        mMovieAdapterTrailer.setTrailerInfo(movieInfo.mMovieTrailers);
+        mRecyclerViewTrailer.setAdapter(mMovieAdapterTrailer);
+
     }//onCreate
 }//MovieDetailsActivity
