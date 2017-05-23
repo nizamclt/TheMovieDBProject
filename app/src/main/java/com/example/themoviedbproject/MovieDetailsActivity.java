@@ -11,6 +11,11 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
@@ -32,6 +37,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
     @BindView(R.id.textOverview) TextView mTextOverView;
     @BindView(R.id.textRating) TextView mTextRating;
     @BindView(R.id.textReleaseDate) TextView mTextReleaseDate;
+    @BindView(R.id.textMinutes) TextView mTextRuntime;
     @BindView(R.id.recyclerview_trailer) RecyclerView mRecyclerViewTrailer;
     @BindView(R.id.recyclerview_review) RecyclerView mRecyclerViewReview;
 
@@ -61,9 +67,20 @@ public class MovieDetailsActivity extends AppCompatActivity {
 
         mTextTitle.setText(movieInfo.movieTitle);
         mTextOverView.setText(movieInfo.movieOverView);
-        mTextRating.setText(movieInfo.movieVoteAverage);
-        mTextReleaseDate.setText(movieInfo.movieReleaseDate);
+        mTextRating.setText(movieInfo.movieVoteAverage + "/" + movieInfo.movieVoteCount);
 
+        String stringYear = movieInfo.movieReleaseDate;
+        try {
+            Date date = new SimpleDateFormat("YYYY-MM-DD", Locale.ENGLISH).parse(movieInfo.movieReleaseDate);
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(date);
+            int year = calendar.get(Calendar.YEAR);
+            stringYear = Integer.toString(year);
+        }catch (Exception exception){
+        }
+        mTextReleaseDate.setText(stringYear);
+
+        mTextRuntime.setText(movieInfo.movieRuntime + getResources().getString(R.string.movie_minutes));
 
         //Configure the Trailer views.
         StaggeredGridLayoutManager layoutManager1 = new StaggeredGridLayoutManager(GRID_LAYOUT_COLUMNS, StaggeredGridLayoutManager.VERTICAL);

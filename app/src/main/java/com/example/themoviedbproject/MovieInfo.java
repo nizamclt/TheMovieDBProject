@@ -20,6 +20,8 @@ public class MovieInfo implements Parcelable {
     public String movieOverView;
     public String movieReleaseDate;
     public String moviePopularity;
+    public String movieVoteCount;
+    public String movieRuntime;
     public List<MovieTrailer> mMovieTrailers = new ArrayList<MovieTrailer>();
     public List<MovieReview> mMovieReviews = new ArrayList<MovieReview>();
 
@@ -36,6 +38,8 @@ public class MovieInfo implements Parcelable {
         movieOverView = src.readString();
         movieReleaseDate = src.readString();
         moviePopularity = src.readString();
+        movieVoteCount = src.readString();
+        movieRuntime = src.readString();
 
         if(null == mMovieTrailers){
             mMovieTrailers = new ArrayList<MovieTrailer>();
@@ -63,6 +67,8 @@ public class MovieInfo implements Parcelable {
         dest.writeString(movieOverView);
         dest.writeString(movieReleaseDate);
         dest.writeString(moviePopularity);
+        dest.writeString(movieVoteCount);
+        dest.writeString(movieRuntime);
         dest.writeTypedList(mMovieTrailers);
         dest.writeTypedList(mMovieReviews);
 

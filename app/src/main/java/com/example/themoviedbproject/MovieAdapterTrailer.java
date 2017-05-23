@@ -49,7 +49,7 @@ public class MovieAdapterTrailer extends RecyclerView.Adapter<MovieAdapterTraile
         Resources resources = movieReviewHolder.itemView.getContext().getResources();
         MovieInfo.MovieTrailer movieTrailer = mMovieTrailers.get(position);
 
-        String stringId = resources.getString(R.string.label_trailerId) + Integer.toString(position + 1);
+        String stringId = resources.getString(R.string.label_trailerId) + " " + Integer.toString(position + 1);
         String stringUrl = "<a href=\'";
         stringUrl +=  movieTrailer.mKey + "\'>" + stringId + "</a>";
 

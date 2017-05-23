@@ -42,7 +42,7 @@ public class MovieAdapterReview extends RecyclerView.Adapter<MovieAdapterReview.
         Resources resources = movieReviewHolder.itemView.getContext().getResources();
         MovieInfo.MovieReview movieReview = mMovieReviews.get(position);
 
-        String stringId = resources.getString(R.string.label_reviewId) + Integer.toString(position + 1);
+        String stringId = resources.getString(R.string.label_reviewId) + " " + Integer.toString(position + 1);
         String stringUrl = "<a href=\'";
         stringUrl +=  movieReview.mUrl + "\'>" + stringId + "</a>";
 

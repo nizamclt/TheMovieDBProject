@@ -140,10 +140,12 @@ public class LoadMovieBkAsyncTask extends AsyncTask<Void, MovieInfo, ArrayList<M
                 movieInfo.movieReleaseDate = string;
                 string = jsonMovieObject.getString("popularity");//sort key
                 movieInfo.moviePopularity = string;
+                string = jsonMovieObject.getString("vote_count");
+                movieInfo.movieVoteCount = string;
 
 //                    string = jsonMovieObject.getString("backdrop_path");
 //                    string = jsonMovieObject.getString("original_title");
-//                    string = jsonMovieObject.getString("vote_count");
+
 
                 //Get movie Reviews and Trailers.
                 getMovieReviews(movieInfo);
@@ -165,7 +167,7 @@ public class LoadMovieBkAsyncTask extends AsyncTask<Void, MovieInfo, ArrayList<M
 
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(mMovieEventsListener.getDBURL());
-        stringBuilder.append(movieInfo.movieID + "/");
+        stringBuilder.append(movieInfo.movieID  + "/");
         stringBuilder.append(mMovieEventsListener.getNodeReviews());
 
         stringBuilder.append("?api_key=" + mMovieEventsListener.getAPIKey());
@@ -181,10 +183,12 @@ public class LoadMovieBkAsyncTask extends AsyncTask<Void, MovieInfo, ArrayList<M
 
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(mMovieEventsListener.getDBURL());
-        stringBuilder.append(movieInfo.movieID + "/");
-        stringBuilder.append(mMovieEventsListener.getNodeVideos());
+        stringBuilder.append(movieInfo.movieID);
 
         stringBuilder.append("?api_key=" + mMovieEventsListener.getAPIKey());
+
+        //To get the runtime details, the video detail is requested as an additional info.
+        stringBuilder.append("&append_to_response=" + mMovieEventsListener.getNodeVideos());
 
         String stringURLResult = sendMovieRequest(stringBuilder.toString());
         getTrailerList(stringURLResult, movieInfo);
@@ -215,22 +219,28 @@ public class LoadMovieBkAsyncTask extends AsyncTask<Void, MovieInfo, ArrayList<M
         JSONObject jsonObject = new JSONObject(movieTrailers);
         String entry;
         String reviewResult;
-        JSONArray array = (JSONArray) jsonObject.get("results");
 
+        //Get the runtime info
+        entry = jsonObject.getString("runtime");
+        movieInfo.movieRuntime = entry;
+
+        JSONObject jsonVideoObject = (JSONObject) jsonObject.get(mMovieEventsListener.getNodeVideos());
+
+        JSONArray array = (JSONArray) jsonVideoObject.get("results");
 
         for (int i = 0; i < array.length(); i++) {
             MovieInfo.MovieTrailer movieTrailer = new MovieInfo.MovieTrailer();
-            JSONObject jsonReviewObject = array.getJSONObject(i);
-            entry = jsonReviewObject.getString("name");
-            entry = jsonReviewObject.getString("size");
+            JSONObject jsonTrailerObject = array.getJSONObject(i);
+            entry = jsonTrailerObject.getString("name");
+            entry = jsonTrailerObject.getString("size");
             movieTrailer.mSize = entry;
-            entry = jsonReviewObject.getString("key");
+            entry = jsonTrailerObject.getString("key");
             entry = mMovieEventsListener.getNodeVideoLink() + entry;
             movieTrailer.mKey = entry;
             Log.d(CLASS_TAG, entry);
-            entry = jsonReviewObject.getString("type");
+            entry = jsonTrailerObject.getString("type");
             movieTrailer.mType = entry;
-            entry = jsonReviewObject.getString("site");
+            entry = jsonTrailerObject.getString("site");
             movieTrailer.mSite = entry;
             movieInfo.mMovieTrailers.add(movieTrailer);
         }
