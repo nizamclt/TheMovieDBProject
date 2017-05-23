@@ -8,10 +8,10 @@ import java.util.ArrayList;
  * Created by Nisam on 4/25/2017.
  */
 
-public interface MovieEventsListener<Progress, T>{
+public interface MovieEventsListener<Progress, Result>{
 
     void onPreExecute();
-    void onPostExecute(T result, @Nullable Exception exception);
+    void onPostExecute(Result result, @Nullable Exception exception);
     void onProgressUpdate(Progress progress);
     String getAPIKey();
     String getDBURL();

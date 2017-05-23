@@ -5,7 +5,7 @@
     android:layout_height="wrap_content">
 
         <ImageButton
-            android:id="@+id/imagePlay"
+            android:id="@+id/imageButtonPlay"
             android:layout_marginTop="5dp"
             android:layout_width="30dp"
             android:layout_height="30dp"
@@ -22,8 +22,18 @@
             android:layout_marginTop="10dp"
             android:layout_alignParentBottom="false"
             android:layout_below="@+id/labelTrailers"
-            android:layout_toRightOf="@+id/imagePlay"
+            android:layout_toRightOf="@+id/imageButtonPlay"
             android:text="@string/label_trailerId"
-            android:autoLink="web"
+            android:textColor="@drawable/hyperlink_color"
             android:textSize="15dp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginLeft="4dp"
+            android:layout_marginRight="4dp"
+            android:layout_marginTop="3dp"
+            android:layout_below="@+id/imageButtonPlay"
+            android:background="@android:color/darker_gray"/>
+
 </RelativeLayout>

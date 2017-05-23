@@ -204,12 +204,16 @@ the application, the onRestoreInstanceState() is not getting called. To mitigate
                 mMainActivity.ShowError(exception);
                 return;
             }
-           // mMovieAdapter.setMovieInfo(result);
+
+            //No need to set the result as we would have received all the movie details by the means of
+            //onProgressUpdate.
+            //mMovieAdapter.setMovieInfo(result);
         }
 
         @Override
         public void onProgressUpdate(MovieInfo movieInfo) {
 
+            //Add each movie as it comes.
             mMovieAdapter.addMovieInfo(movieInfo);
         }
 

@@ -128,10 +128,6 @@ public class LoadMovieBkAsyncTask extends AsyncTask<Void, MovieInfo, ArrayList<M
                 string = jsonMovieObject.getString("id");
                 movieInfo.movieID = string;
 
-                //Get movie Reviews and Trailers.
-                getMovieReviews(movieInfo);
-                getMovieTrailers(movieInfo);
-
                 string = jsonMovieObject.getString("title");
                 movieInfo.movieTitle = string;
                 string = jsonMovieObject.getString("vote_average");//sort key
@@ -149,7 +145,13 @@ public class LoadMovieBkAsyncTask extends AsyncTask<Void, MovieInfo, ArrayList<M
 //                    string = jsonMovieObject.getString("original_title");
 //                    string = jsonMovieObject.getString("vote_count");
 
-                movieArrayList.add(movieInfo);//Dynamically adding items to the adaptor possible?
+                //Get movie Reviews and Trailers.
+                getMovieReviews(movieInfo);
+                getMovieTrailers(movieInfo);
+
+                movieArrayList.add(movieInfo);
+
+                //Pass each movie info object as we receive it.
                 publishProgress(movieInfo);
 
             }
@@ -215,8 +217,9 @@ public class LoadMovieBkAsyncTask extends AsyncTask<Void, MovieInfo, ArrayList<M
         String reviewResult;
         JSONArray array = (JSONArray) jsonObject.get("results");
 
-        MovieInfo.MovieTrailer movieTrailer = new MovieInfo.MovieTrailer();
+
         for (int i = 0; i < array.length(); i++) {
+            MovieInfo.MovieTrailer movieTrailer = new MovieInfo.MovieTrailer();
             JSONObject jsonReviewObject = array.getJSONObject(i);
             entry = jsonReviewObject.getString("name");
             entry = jsonReviewObject.getString("size");
