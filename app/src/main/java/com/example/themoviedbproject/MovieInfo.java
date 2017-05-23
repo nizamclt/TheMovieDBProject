@@ -42,6 +42,11 @@ public class MovieInfo implements Parcelable {
         }
         src.readTypedList(mMovieTrailers, MovieTrailer.CREATOR);
 
+        if(null == mMovieReviews){
+            mMovieReviews = new ArrayList<MovieReview>();
+        }
+        src.readTypedList(mMovieReviews, MovieReview.CREATOR);
+
     }
 
     @Override
@@ -59,6 +64,7 @@ public class MovieInfo implements Parcelable {
         dest.writeString(movieReleaseDate);
         dest.writeString(moviePopularity);
         dest.writeTypedList(mMovieTrailers);
+        dest.writeTypedList(mMovieReviews);
 
     }
 

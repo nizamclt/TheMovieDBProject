@@ -1,6 +1,7 @@
 package com.example.themoviedbproject;
 
 import android.content.Intent;
+import android.content.res.Resources;
 import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
@@ -23,7 +24,7 @@ import java.util.List;
 
 public class MovieAdapterTrailer extends RecyclerView.Adapter<MovieAdapterTrailer.MovieTrailerHolder> {
 
-    List<MovieInfo.MovieTrailer> mMovieTrailers = null;
+    private List<MovieInfo.MovieTrailer> mMovieTrailers = null;
 
 
     public void setTrailerInfo(List<MovieInfo.MovieTrailer> movieTrailers){
@@ -45,9 +46,10 @@ public class MovieAdapterTrailer extends RecyclerView.Adapter<MovieAdapterTraile
             return;
         }
 
+        Resources resources = movieReviewHolder.itemView.getContext().getResources();
         MovieInfo.MovieTrailer movieTrailer = mMovieTrailers.get(position);
 
-        String stringId = "Trailer " + Integer.toString(position + 1);
+        String stringId = resources.getString(R.string.label_trailerId) + Integer.toString(position + 1);
         String stringUrl = "<a href=\'";
         stringUrl +=  movieTrailer.mKey + "\'>" + stringId + "</a>";
 
@@ -61,7 +63,7 @@ public class MovieAdapterTrailer extends RecyclerView.Adapter<MovieAdapterTraile
 
         movieReviewHolder.mTextTrailerId.setText(htmlResult);
 
-        Log.d("", stringId);
+        Log.d("", stringUrl);
     }
 
     @Override
@@ -93,7 +95,7 @@ public class MovieAdapterTrailer extends RecyclerView.Adapter<MovieAdapterTraile
                     if(viewParent == null){
                         return;
                     }
-                    
+
                     //Find the hyper link text view.
                     TextView textView = (TextView) viewParent.findViewById(R.id.trailerID);
                     URLSpan[] stringLink = textView.getUrls();
@@ -106,7 +108,6 @@ public class MovieAdapterTrailer extends RecyclerView.Adapter<MovieAdapterTraile
                     v.getContext().startActivity(videoIntent);
                 }
             });
-
         }
 /*
         @Override

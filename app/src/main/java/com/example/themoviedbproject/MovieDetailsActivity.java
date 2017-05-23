@@ -23,6 +23,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
     private static String CLASS_TAG;
 
     private MovieAdapterTrailer mMovieAdapterTrailer;
+    private MovieAdapterReview mMovieAdapterReview;
     private static final int GRID_LAYOUT_COLUMNS = 1;
 
     //ButterKnife is really a knife!
@@ -32,6 +33,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
     @BindView(R.id.textRating) TextView mTextRating;
     @BindView(R.id.textReleaseDate) TextView mTextReleaseDate;
     @BindView(R.id.recyclerview_trailer) RecyclerView mRecyclerViewTrailer;
+    @BindView(R.id.recyclerview_review) RecyclerView mRecyclerViewReview;
 
     @Override
     protected void onCreate(Bundle savedInstance){
@@ -62,13 +64,23 @@ public class MovieDetailsActivity extends AppCompatActivity {
         mTextRating.setText(movieInfo.movieVoteAverage);
         mTextReleaseDate.setText(movieInfo.movieReleaseDate);
 
-        StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(GRID_LAYOUT_COLUMNS, StaggeredGridLayoutManager.VERTICAL);
-        mRecyclerViewTrailer.setLayoutManager(layoutManager);
+
+        //Configure the Trailer views.
+        StaggeredGridLayoutManager layoutManager1 = new StaggeredGridLayoutManager(GRID_LAYOUT_COLUMNS, StaggeredGridLayoutManager.VERTICAL);
+        mRecyclerViewTrailer.setLayoutManager(layoutManager1);
         mRecyclerViewTrailer.setHasFixedSize(true);
 
         mMovieAdapterTrailer = new MovieAdapterTrailer();
         mMovieAdapterTrailer.setTrailerInfo(movieInfo.mMovieTrailers);
         mRecyclerViewTrailer.setAdapter(mMovieAdapterTrailer);
 
+        //Configure the Review views.
+        StaggeredGridLayoutManager layoutManager2 = new StaggeredGridLayoutManager(GRID_LAYOUT_COLUMNS, StaggeredGridLayoutManager.VERTICAL);
+        mRecyclerViewReview.setLayoutManager(layoutManager2);
+        mRecyclerViewReview.setHasFixedSize(true);
+
+        mMovieAdapterReview = new MovieAdapterReview();
+        mMovieAdapterReview.setReviewInfo(movieInfo.mMovieReviews);
+        mRecyclerViewReview.setAdapter(mMovieAdapterReview);
     }//onCreate
 }//MovieDetailsActivity
