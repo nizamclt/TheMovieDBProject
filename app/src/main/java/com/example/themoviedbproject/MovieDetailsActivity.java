@@ -1,6 +1,9 @@
 package com.example.themoviedbproject;
 
+import android.content.ContentValues;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -10,13 +13,18 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+import android.widget.ToggleButton;
 
+import com.example.themoviedbproject.data.MovieContract;
 import com.squareup.picasso.Picasso;
 
+import java.io.ByteArrayOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -47,6 +55,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
     @BindView(R.id.textMinutes) TextView mTextRuntime;
     @BindView(R.id.recyclerview_trailer) RecyclerView mRecyclerViewTrailer;
     @BindView(R.id.recyclerview_review) RecyclerView mRecyclerViewReview;
+    @BindView(R.id.button_favourite) ToggleButton mToggleButton;
 
     @Override
     protected void onCreate(Bundle savedInstance){
@@ -108,6 +117,64 @@ public class MovieDetailsActivity extends AppCompatActivity {
         mMovieAdapterReview.setReviewInfo(movieInfo.mMovieReviews);
         mRecyclerViewReview.setAdapter(mMovieAdapterReview);
     }//onCreate
+
+    public void onFavouriteButtonClick(View view){
+
+        if(mToggleButton.isChecked()){
+
+            //Insert a new movie info.
+            InsertMovieInfo();
+            //Toast.makeText(getBaseContext(), "Checked", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        //Delete the existing one.
+        DeleteMovieInfo();
+        //Toast.makeText(getBaseContext(), "NOT Checked", Toast.LENGTH_SHORT).show();
+    }
+
+    private void InsertMovieInfo(){
+        if(mMovieInfo == null){
+            return;
+        }
+
+        ContentValues contentValues = new ContentValues();
+
+        contentValues.put(MovieContract.MovieEntry.COLUMN_MOVIEID, mMovieInfo.movieID);
+        contentValues.put(MovieContract.MovieEntry.COLUMN_TITLE, mMovieInfo.movieTitle);
+
+        //Get image bytes
+        Bitmap bitmap = ((BitmapDrawable) mImageView.getDrawable()).getBitmap();
+
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
+        byte[] imageInByte = byteArrayOutputStream.toByteArray();
+
+        contentValues.put(MovieContract.MovieEntry.COLUMN_POSTER, imageInByte);
+
+        contentValues.put(MovieContract.MovieEntry.COLUMN_RELEASE_DATE, mMovieInfo.movieReleaseDate);
+        contentValues.put(MovieContract.MovieEntry.COLUMN_MINUTES, mMovieInfo.movieRuntime);
+        contentValues.put(MovieContract.MovieEntry.COLUMN_RATING, mMovieInfo.movieVoteAverage + "/" + mMovieInfo.movieVoteCount);
+        contentValues.put(MovieContract.MovieEntry.COLUMN_OVERVIEW, mMovieInfo.movieOverView);
+
+        Uri uri = getContentResolver().insert(MovieContract.MovieEntry.CONTENT_URI, contentValues);
+        if(uri == null){
+            Toast.makeText(getBaseContext(), "Error in marking as Favourite", Toast.LENGTH_SHORT).show();
+        }
+        else{
+            Toast.makeText(getBaseContext(), "This movie is marked as Favourite", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void DeleteMovieInfo(){
+        if(mMovieInfo == null){
+            return;
+        }
+
+        Uri uri = MovieContract.MovieEntry.CONTENT_URI;
+        uri.buildUpon().appendPath(mMovieInfo.movieID).build();
+        getContentResolver().delete(uri, null, null);
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

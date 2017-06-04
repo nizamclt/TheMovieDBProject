@@ -82,6 +82,7 @@
                     android:layout_marginTop="5dp"
                     android:textOn=""
                     android:textOff=""
+                    android:onClick="onFavouriteButtonClick"
                     android:layout_below="@+id/textRating"
                     android:layout_alignLeft="@+id/textRating"
                     android:layout_alignStart="@+id/textRating" />
