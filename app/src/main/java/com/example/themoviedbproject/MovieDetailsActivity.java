@@ -1,11 +1,17 @@
 package com.example.themoviedbproject;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -30,6 +36,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
     private MovieAdapterTrailer mMovieAdapterTrailer;
     private MovieAdapterReview mMovieAdapterReview;
     private static final int GRID_LAYOUT_COLUMNS = 1;
+    MovieInfo mMovieInfo;
 
     //ButterKnife is really a knife!
     @BindView(R.id.imageViewDetail) ImageView mImageView;
@@ -57,6 +64,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
             return;
         }
 
+        mMovieInfo = movieInfo;
         Log.d(CLASS_TAG, movieInfo.moviePosterPath);
 
         //Load the image
@@ -100,4 +108,42 @@ public class MovieDetailsActivity extends AppCompatActivity {
         mMovieAdapterReview.setReviewInfo(movieInfo.mMovieReviews);
         mRecyclerViewReview.setAdapter(mMovieAdapterReview);
     }//onCreate
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+
+        if(mMovieInfo == null){
+            return false;
+        }
+
+        //Check whether there exists any trailers to be shared.
+        if(mMovieInfo.mMovieTrailers.size() > 0) {
+            MenuInflater menuInflater = getMenuInflater();
+            menuInflater.inflate(R.menu.movie_video_share_menu, menu);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        if(mMovieInfo == null){
+            return false;
+        }
+
+        //Once again ensure that there exists at least one trailer.
+        if(mMovieInfo.mMovieTrailers.size() <= 0){
+            return false;
+        }
+
+        //Get the first movie trailer info.
+        MovieInfo.MovieTrailer movieTrailer = mMovieInfo.mMovieTrailers.get(0);
+        Intent intent = new Intent();
+        intent.setAction(Intent.ACTION_SEND);
+        intent.setType("text/plain");
+        intent.putExtra(Intent.EXTRA_TEXT, movieTrailer.mKey);
+        startActivity(Intent.createChooser(intent, getResources().getText(R.string.share_trailer)));
+        return true;
+    }
 }//MovieDetailsActivity

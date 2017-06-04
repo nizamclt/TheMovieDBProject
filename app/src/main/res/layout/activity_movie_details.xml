@@ -87,7 +87,7 @@
                     android:layout_alignStart="@+id/textRating" />
         </RelativeLayout>
 
-        <TextView
+                <TextView
             android:id="@+id/textOverview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -107,6 +107,7 @@
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_weight="0.5"
         >
 
         <TextView
@@ -116,14 +117,22 @@
             android:textSize="15dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="0.25"/>
+            />
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/recyclerview_trailer"
             android:layout_width="match_parent"
             android:layout_height="100dp"
             android:clipToPadding="false"
-            android:layout_weight="0.5"/>
+            />
+
+        </LinearLayout>
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5"
+            >
 
         <TextView
             android:id="@+id/labelReviews"
@@ -132,14 +141,14 @@
             android:textSize="15dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="0.25"/>
+            />
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/recyclerview_review"
             android:layout_width="match_parent"
             android:layout_height="100dp"
             android:clipToPadding="false"
-            android:layout_weight="0.5"/>
+            />
         </LinearLayout>
 
      </TableLayout>
