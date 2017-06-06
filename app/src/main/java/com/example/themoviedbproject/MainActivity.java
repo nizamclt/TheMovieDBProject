@@ -1,11 +1,15 @@
 package com.example.themoviedbproject;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
@@ -22,6 +26,7 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.example.themoviedbproject.data.MovieContract;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
@@ -48,10 +53,14 @@ public class MainActivity extends AppCompatActivity {
 
     private static String CLASS_TAG;
     private static final int GRID_LAYOUT_COLUMNS = 2;
+    private static final int MOVIE_DB_LOADER_ID = 1;
 
     private static String LAYOUT_BUNDLE_NAME;
-    private static String URL_MOVIE_DB;
     private static String API_KAY;
+    private static String URL_MOVIE_DB;
+    private static String NODE_REVIEWS;
+    private static String NODE_VIDEOS;
+    private static String NODE_VIDEO_LINK;
 
     @BindView(R.id.ErrorLayout) RelativeLayout mLayoutError;
     @BindView(R.id.recyclerview_movie) RecyclerView mRecyclerView;
@@ -61,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
     private MainActivity mMainActivity;
     private MovieAdapter mMovieAdapter;
     private int mSortSelection = R.id.sort_by_most_popular; //Default sorting
+    private LoadFavouritesDB mLoadFavouritesDB = new LoadFavouritesDB();
 
 
     @Override
@@ -95,6 +105,7 @@ public class MainActivity extends AppCompatActivity {
             mRecyclerView.setVisibility(View.INVISIBLE);
         }
     }//onCreate
+
 
 /*
 It is noticed that when we go back to the main activity from the MovieDetailsActivity by using the back button (i.e. the <- button) on top of
@@ -144,15 +155,30 @@ the application, the onRestoreInstanceState() is not getting called. To mitigate
         if(mLayoutError.getVisibility() == View.VISIBLE){
             return true;
         }
+        switch (mSortSelection){
 
-        if(mSortSelection == R.id.sort_by_most_popular){
-            setTitle(R.string.popular_movies);
-        }
-        else{
-            setTitle(R.string.top_rated_movies);
-        }
+            case R.id.sort_by_most_popular:
+                setTitle(R.string.popular_movies);
+                mMovieAdapter.Clear();
+                new LoadMovieBkAsyncTask(new FetchMovieEventsListener()).execute();
+                break;
+            case R.id.sort_by_top_rating:
+                setTitle(R.string.top_rated_movies);
+                mMovieAdapter.Clear();
+                new LoadMovieBkAsyncTask(new FetchMovieEventsListener()).execute();
+                break;
+            case R.id.sort_by_favourites:
+                setTitle(R.string.sort_by_favourites);
+                LoaderManager loaderManager = getSupportLoaderManager();
+                Loader<Cursor> loaderDB = loaderManager.getLoader(MOVIE_DB_LOADER_ID);
+                if(loaderDB == null) {
+                    loaderManager.initLoader(MOVIE_DB_LOADER_ID, null, mLoadFavouritesDB);
+                }else{
+                    loaderManager.restartLoader(MOVIE_DB_LOADER_ID, null, mLoadFavouritesDB);
+                }
 
-        new LoadMovieBkAsyncTask(new FetchMovieEventsListener()).execute();
+                break;
+        }
         return true;
     }
 
@@ -163,10 +189,8 @@ the application, the onRestoreInstanceState() is not getting called. To mitigate
     }
 
     public void HideError(){
-
         mLayoutError.setVisibility(View.INVISIBLE);
         mRecyclerView.setVisibility(View.VISIBLE);
-
     }
 
     public void ShowError(Exception exception){
@@ -183,7 +207,7 @@ the application, the onRestoreInstanceState() is not getting called. To mitigate
         mRecyclerView.setVisibility(View.INVISIBLE);
     }
 
-    private class FetchMovieEventsListener implements MovieEventsListener<ArrayList<MovieInfo>>{
+    private class FetchMovieEventsListener implements MovieEventsListener<MovieInfo, ArrayList<MovieInfo>>{
 
         @Override
         public void onPreExecute()
@@ -201,7 +225,17 @@ the application, the onRestoreInstanceState() is not getting called. To mitigate
                 mMainActivity.ShowError(exception);
                 return;
             }
-            mMovieAdapter.setMovieInfo(result);
+
+            //No need to set the result as we would have received all the movie details by the means of
+            //onProgressUpdate.
+            //mMovieAdapter.setMovieInfo(result);
+        }
+
+        @Override
+        public void onProgressUpdate(MovieInfo movieInfo) {
+
+            //Add each movie as it comes.
+            mMovieAdapter.addMovieInfo(movieInfo);
         }
 
         @Override
@@ -221,13 +255,113 @@ the application, the onRestoreInstanceState() is not getting called. To mitigate
 
             return mSortSelection;
         }
+
+        @Override
+        public String getNodeReviews() {
+            return NODE_REVIEWS;
+        }
+
+        @Override
+        public String getNodeVideos() {
+            return NODE_VIDEOS;
+        }
+
+        @Override
+        public String getNodeVideoLink() {
+            return NODE_VIDEO_LINK;
+        }
     }
 
     private void InitActivity(){
 
         LAYOUT_BUNDLE_NAME = getResources().getString(R.string.class_bundle_main_activity);
-        URL_MOVIE_DB = getResources().getString(R.string.url_movie_db);
         API_KAY = getResources().getString(R.string.api_key_movie_db);
+        URL_MOVIE_DB = getResources().getString(R.string.url_movie_db);
+        NODE_REVIEWS = getResources().getString(R.string.url_node_reviews);
+        NODE_VIDEOS = getResources().getString(R.string.url_node_videos);
+        NODE_VIDEO_LINK = getResources().getString(R.string.youtube_link);
         CLASS_TAG = getClass().getSimpleName();
+    }
+
+    public class LoadFavouritesDB implements LoaderManager.LoaderCallbacks<Cursor>{
+
+        @Override
+        public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+
+            if(mSortSelection != R.id.sort_by_favourites ){
+                return null;
+            }
+            return new AsyncTaskLoader<Cursor>(MainActivity.this) {
+
+                @Override
+                protected void onStartLoading() {
+                    if(mSortSelection == R.id.sort_by_favourites ){
+                        super.onStartLoading();
+                        mMovieAdapter.Clear();
+                        forceLoad();
+                    }
+                }
+
+                @Override
+                public Cursor loadInBackground() {
+
+                    try {
+                        return getContentResolver().query(MovieContract.MovieEntry.CONTENT_URI,
+                                null,
+                                null,
+                                null,
+                                null);
+
+                    } catch (Exception e) {
+                        Log.e(CLASS_TAG, "Failed to asynchronously load data.");
+                        e.printStackTrace();
+                        return null;
+                    }
+                }
+
+                public void deliverResult(Cursor data) {
+                    super.deliverResult(data);
+                }
+            };
+        }
+
+        @Override
+        public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+
+            if(data == null){
+                return;
+            }
+
+            try{
+                //Load the data returned by the cursor.
+                while(data.moveToNext()){
+
+                    MovieInfo movieInfo = new MovieInfo();
+                    movieInfo.movieID = Long.toString(data.getLong(data.getColumnIndex(MovieContract.MovieEntry.COLUMN_MOVIEID)));
+                    movieInfo.movieTitle = data.getString(data.getColumnIndex(MovieContract.MovieEntry.COLUMN_TITLE));
+
+                    //Poster blob
+                    movieInfo.bytePosterPixels = data.getBlob(data.getColumnIndex(MovieContract.MovieEntry.COLUMN_POSTERBLOB));
+
+                    movieInfo.movieReleaseDate = data.getString(data.getColumnIndex(MovieContract.MovieEntry.COLUMN_RELEASE_DATE));
+                    movieInfo.movieRuntime = data.getString(data.getColumnIndex(MovieContract.MovieEntry.COLUMN_MINUTES));
+                    movieInfo.movieOverView = data.getString(data.getColumnIndex(MovieContract.MovieEntry.COLUMN_OVERVIEW));
+                    movieInfo.moviePopularity = data.getString(data.getColumnIndex(MovieContract.MovieEntry.COLUMN_POPULARITY));
+                    movieInfo.movieVoteCount = data.getString(data.getColumnIndex(MovieContract.MovieEntry.COLUMN_VOTECOUNT));
+                    movieInfo.movieVoteAverage = data.getString(data.getColumnIndex(MovieContract.MovieEntry.COLUMN_VOTEAVERAGE));
+
+                    movieInfo.boolOffline = true;
+                    mMovieAdapter.addMovieInfo(movieInfo);
+                }
+
+            }finally {
+                data.close();
+            }
+        }
+
+        @Override
+        public void onLoaderReset(Loader<Cursor> loader) {
+
+        }
     }
 }//MainActivity

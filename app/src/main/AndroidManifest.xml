@@ -24,6 +24,10 @@
             android:parentActivityName=".MainActivity">
         </activity>
 
+        <provider
+            android:name="com.example.themoviedbproject.data.MovieContentProvider"
+            android:authorities="com.example.themoviedbproject"
+            android:exported="false"/>
     </application>
 
 </manifest>
