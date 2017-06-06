@@ -1,6 +1,8 @@
 package com.example.themoviedbproject;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -48,6 +50,10 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdaptor
             return;
         }
 
+        if(mMovieArrayList.get(position).boolOffline){
+            movieAdaptorHolder.LoadImageFromBytes(mMovieArrayList.get(position));
+            return;
+        }
         String strPosterPath = MOVIE_IMAGE_URL;
         strPosterPath += mMovieArrayList.get(position).moviePosterPath;
         movieAdaptorHolder.LoadImage(strPosterPath);
@@ -68,6 +74,13 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdaptor
 
     public static String getMovieImageUrl(){
         return MOVIE_IMAGE_URL;
+    }
+
+    public void Clear(){
+        if(null != mMovieArrayList){
+            mMovieArrayList.clear();
+        }
+        notifyDataSetChanged();
     }
 
     public void addMovieInfo(MovieInfo movieInfo){
@@ -114,7 +127,6 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdaptor
         private ProgressBar mProgressBar;
         public ImageView mImageView;
 
-
         public MovieAdaptorHolder(View view){
 
             super(view);
@@ -125,6 +137,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdaptor
 
         public void LoadImage(String stringImagePath){
 
+            ClearImage();
             mProgressBar.setVisibility(View.VISIBLE);
             Picasso.with(itemView.getContext())
                    .load(stringImagePath)
@@ -132,6 +145,16 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdaptor
                    .error(R.drawable.error_loading)
                    .into(mImageView);
             mProgressBar.setVisibility(View.INVISIBLE);
+        }
+
+        public void ClearImage(){
+            mImageView.setImageResource(0);
+        }
+
+        public void LoadImageFromBytes(final MovieInfo movieInfo){
+
+            Bitmap bitmap = BitmapFactory.decodeByteArray(movieInfo.bytePosterPixels, 0, movieInfo.bytePosterPixels.length);
+            mImageView.setImageBitmap(Bitmap.createScaledBitmap(bitmap, bitmap.getWidth(), bitmap.getHeight(), false));
         }
 
         @Override

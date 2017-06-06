@@ -9,9 +9,14 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.os.Bundle;
 import android.support.annotation.BoolRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.Loader;
+import android.util.Log;
 
 /**
  * Created by Nisam on 6/4/2017.
@@ -79,8 +84,8 @@ public class MovieContentProvider extends ContentProvider {
 
                 returnCursor = sqLiteDatabase.query(MovieContract.MovieEntry.TABLE_NAME,
                         projection,
-                        selection,
-                        selectionArgs,
+                        localSelection,
+                        localSelectionArgs,
                         null,
                         null,
                         sortOrder);

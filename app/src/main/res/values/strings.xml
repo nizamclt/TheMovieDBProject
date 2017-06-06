@@ -12,7 +12,8 @@
     <string name="sort_by_most_popular">Sort by Most Popular</string>
     <string name="sort_by_top_rating">Sort by Top Rating</string>
     <string name="sort_by_favourites">Favourites</string>
-    <string name="api_key_movie_db">TODO:PUT KEY HERE</string>
+    <!-- TODO: put Movie DB Key below -->
+    <string name="api_key_movie_db">MOVIEDBKEY</string>
     <string name="url_movie_image">http://image.tmdb.org/t/p/w185</string>
     <string name="url_movie_db">http://api.themoviedb.org/3/movie/</string>
     <string name="url_node_reviews">reviews</string>
@@ -24,4 +25,9 @@
     <string name="movie_minutes">min</string>
     <string name="youtube_link">https://www.youtube.com/watch?v=</string>
     <string name="share_trailer">Share Trailer</string>
+    <string name="favourite_marked">This movie is marked as Favourite</string>
+    <string name="favourite_unmarked">This movie is unmarked as Favourite</string>
+    <string name="favourite_mark_error">Error in marking as Favourite</string>
+    <string name="favourite_unmark_error">Error in unmarking as Favourite</string>
+
 </resources>

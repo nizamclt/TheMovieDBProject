@@ -25,10 +25,12 @@ public class MovieContract {
         //List column names.
         public static final String COLUMN_MOVIEID = "movieId";
         public static final String COLUMN_TITLE = "title";
-        public static final String COLUMN_POSTER = "poster";
+        public static final String COLUMN_POSTERBLOB = "posterBlob";
         public static final String COLUMN_RELEASE_DATE = "releaseDate";
         public static final String COLUMN_MINUTES = "minutes";
-        public static final String COLUMN_RATING = "rating";
         public static final String COLUMN_OVERVIEW = "overview";
+        public static final String COLUMN_POPULARITY = "popularity";
+        public static final String COLUMN_VOTECOUNT = "voteCount";
+        public static final String COLUMN_VOTEAVERAGE = "voteAverage";
     }
 }

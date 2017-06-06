@@ -24,10 +24,10 @@ public class MovieInfo implements Parcelable {
     public String movieRuntime;
     public List<MovieTrailer> mMovieTrailers = new ArrayList<MovieTrailer>();
     public List<MovieReview> mMovieReviews = new ArrayList<MovieReview>();
-
+    public Boolean boolOffline = new Boolean(false);
+    public byte[] bytePosterPixels = new byte[]{0};
 
     MovieInfo(){
-
     }
 
     MovieInfo(Parcel src){
@@ -51,6 +51,8 @@ public class MovieInfo implements Parcelable {
         }
         src.readTypedList(mMovieReviews, MovieReview.CREATOR);
 
+        boolOffline = src.readByte() != 0;
+        bytePosterPixels = readByteArray(src);
     }
 
     @Override
@@ -71,7 +73,19 @@ public class MovieInfo implements Parcelable {
         dest.writeString(movieRuntime);
         dest.writeTypedList(mMovieTrailers);
         dest.writeTypedList(mMovieReviews);
+        dest.writeByte((byte) (boolOffline ? 1 : 0));
+        writeByteArray(dest, bytePosterPixels);
+    }
 
+    private byte[] readByteArray(Parcel parcel){
+        byte[] returnBytes = new byte[parcel.readInt()];
+        parcel.readByteArray(returnBytes);
+        return returnBytes;
+    }
+
+    private void writeByteArray(Parcel parcel, byte[] byteArray){
+        parcel.writeInt(byteArray.length);
+        parcel.writeByteArray(byteArray);
     }
 
     public static final Creator<MovieInfo> CREATOR = new Creator<MovieInfo>() {
