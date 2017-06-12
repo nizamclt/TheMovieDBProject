@@ -105,7 +105,11 @@ public class MovieAdapterTrailer extends RecyclerView.Adapter<MovieAdapterTraile
                     String stringURL = stringLink[0].getURL();
 
                     Intent videoIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(stringURL));
-                    v.getContext().startActivity(videoIntent);
+
+                    //Ensure that the intent can be resolved, before executing it.
+                    if(videoIntent.resolveActivity(v.getContext().getPackageManager()) != null){
+                        v.getContext().startActivity(videoIntent);
+                    }
                 }
             });
         }

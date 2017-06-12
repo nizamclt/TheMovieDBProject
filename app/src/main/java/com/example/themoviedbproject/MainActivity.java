@@ -69,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
 
     private MainActivity mMainActivity;
     private MovieAdapter mMovieAdapter;
+    Parcelable mSavedRecyclerLayoutState;
     private int mSortSelection = R.id.sort_by_most_popular; //Default sorting
     private LoadFavouritesDB mLoadFavouritesDB = new LoadFavouritesDB();
 
@@ -82,11 +83,17 @@ public class MainActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         InitActivity();
 
+
+        if(savedInstanceState != null){
+            mSavedRecyclerLayoutState = savedInstanceState.getParcelable(LAYOUT_BUNDLE_NAME);
+            mSortSelection = (int) savedInstanceState.getSerializable("mSortSelection");
+        }
+
         mButtonRefresh.setOnClickListener( new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
-                new LoadMovieBkAsyncTask(new FetchMovieEventsListener()).execute();
+                LoadMovieDetails(mSortSelection);
             }
         });
 
@@ -99,11 +106,13 @@ public class MainActivity extends AppCompatActivity {
         mRecyclerView.setAdapter(mMovieAdapter);
 
         if(CheckOnline()){
-            new LoadMovieBkAsyncTask(new FetchMovieEventsListener()).execute();
+            LoadMovieDetails(mSortSelection);
         }else{
             mLayoutError.setVisibility(View.VISIBLE);
             mRecyclerView.setVisibility(View.INVISIBLE);
         }
+
+
     }//onCreate
 
 
@@ -117,6 +126,7 @@ the application, the onRestoreInstanceState() is not getting called. To mitigate
 
         super.onSaveInstanceState(bundle);
         bundle.putParcelable(LAYOUT_BUNDLE_NAME, mRecyclerView.getLayoutManager().onSaveInstanceState());
+        bundle.putSerializable("mSortSelection", mSortSelection);
     }
 
     @Override
@@ -126,10 +136,16 @@ the application, the onRestoreInstanceState() is not getting called. To mitigate
 
         if(bundle != null)
         {
-            Parcelable savedRecyclerLayoutState = bundle.getParcelable(LAYOUT_BUNDLE_NAME);
-            mRecyclerView.getLayoutManager().onRestoreInstanceState(savedRecyclerLayoutState);
+            //Parcelable savedRecyclerLayoutState = bundle.getParcelable(LAYOUT_BUNDLE_NAME);
+            //mRecyclerView.getLayoutManager().onRestoreInstanceState(savedRecyclerLayoutState);
+
+            //Restoration of RecyclerView position will be done only after loading is completed.
+            //Here, just save the parcelable instance.
+            mSavedRecyclerLayoutState = bundle.getParcelable(LAYOUT_BUNDLE_NAME);
+            mSortSelection = (int) bundle.getSerializable("mSortSelection");
         }
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu){
@@ -155,7 +171,13 @@ the application, the onRestoreInstanceState() is not getting called. To mitigate
         if(mLayoutError.getVisibility() == View.VISIBLE){
             return true;
         }
-        switch (mSortSelection){
+        LoadMovieDetails(mSortSelection);
+        return true;
+    }
+
+    private void LoadMovieDetails(int sortSelection){
+
+        switch (sortSelection){
 
             case R.id.sort_by_most_popular:
                 setTitle(R.string.popular_movies);
@@ -179,7 +201,6 @@ the application, the onRestoreInstanceState() is not getting called. To mitigate
 
                 break;
         }
-        return true;
     }
 
     private boolean CheckOnline() {
@@ -229,6 +250,11 @@ the application, the onRestoreInstanceState() is not getting called. To mitigate
             //No need to set the result as we would have received all the movie details by the means of
             //onProgressUpdate.
             //mMovieAdapter.setMovieInfo(result);
+
+            if(mSavedRecyclerLayoutState != null){
+                mRecyclerView.getLayoutManager().onRestoreInstanceState(mSavedRecyclerLayoutState);
+                mSavedRecyclerLayoutState = null;
+            }
         }
 
         @Override
@@ -356,6 +382,12 @@ the application, the onRestoreInstanceState() is not getting called. To mitigate
 
             }finally {
                 data.close();
+            }
+
+            //Restore view state.
+            if(mSavedRecyclerLayoutState != null){
+                mRecyclerView.getLayoutManager().onRestoreInstanceState(mSavedRecyclerLayoutState);
+                mSavedRecyclerLayoutState = null;
             }
         }
 
