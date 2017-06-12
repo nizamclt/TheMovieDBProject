@@ -73,6 +73,12 @@ public class MovieDetailsActivity extends AppCompatActivity implements LoaderMan
         ButterKnife.bind(this);
 
         Intent intent = getIntent();
+        if(intent == null){
+
+            Log.e(CLASS_TAG, "Intent object is null in onCreate!");
+            return;
+        }
+
         MovieInfo movieInfo = (MovieInfo) intent.getParcelableExtra(Intent.EXTRA_TEXT);
 
         if(movieInfo == null){
